@@ -3,15 +3,15 @@ import pandas as pd
 import numpy as np
 from itertools import product
 sales = pd.read_csv('./data-readonly/sales_train.csv.gz')
-cur_shops = sales['shop_id'].unique()
-items = pd.read_csv('./data-readonly/items.csv')
-cur_items = items['item_id'].unique()
+test = pd.read_csv('./data-readonly/test.csv.gz')
+cur_shops = test['shop_id'].unique()
+cur_items = test['item_id'].unique()
 index_cols = ['shop_id', 'item_id', 'date_block_num']
 
 # For every month we create a grid from all shops/items combinations from that month
 grid = [] 
 for block_num in sales['date_block_num'].unique():
-    grid.append(np.array(list(product(*[cur_shops, cur_items, [block_num]])),dtype='int32'))
+    grid.append(np.array(list(product(*[cur_shops, cur_items, [block_num]])),dtype='int16'))
 
 #turn the grid into pandas dataframe
 grid = pd.DataFrame(np.vstack(grid), columns = index_cols,dtype=np.int32)
