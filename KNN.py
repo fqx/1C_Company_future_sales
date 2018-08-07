@@ -83,6 +83,7 @@ class NearestNeighborsFeats(BaseEstimator, ClassifierMixin):
         '''
             Computes KNN features for a single object `x`
         '''
+        x = x.reshape(1,-1)
 
         NN_output = self.NN.kneighbors(x)
 
@@ -237,6 +238,7 @@ k_list = [3, 8, 32]
 def train(X, Y, n_jobs=4):
     '''return (n, 239) numpy array'''
     feats =[]
+
     for metric in ['minkowski', 'cosine']:
         print(metric)
 
@@ -257,6 +259,7 @@ def train(X, Y, n_jobs=4):
 def test(X, Y, X_test, n_jobs=4):
     '''return (n, 239) numpy array'''
     feats = []
+
     for metric in ['minkowski', 'cosine']:
         print(metric)
 
