@@ -26,5 +26,5 @@ df_All_train = pd.merge(grid,gb,how='left',on=index_cols).fillna(0)
 #sort the data
 df_All_train.sort_values(['date_block_num','shop_id','item_id'],inplace=True)
 df_All_train.reset_index(drop=True)
-df_All_train = df_All_train.to_sparse()
+#df_All_train = df_All_train.to_sparse()
 df_All_train.to_hdf('All_train.hdf',key='train')
