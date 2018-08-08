@@ -14,7 +14,7 @@ for block_num in sales['date_block_num'].unique():
     grid.append(np.array(list(product(*[cur_shops, cur_items, [block_num]])),dtype='int16'))
 
 #turn the grid into pandas dataframe
-grid = pd.DataFrame(np.vstack(grid), columns = index_cols,dtype=np.int32)
+grid = pd.DataFrame(np.vstack(grid), columns = index_cols,dtype=np.int16)
 
 #get aggregated values for (shop_id, item_id, month)
 gb = sales.groupby(index_cols,as_index=False).agg({'item_cnt_day':{'target':'sum'}})
