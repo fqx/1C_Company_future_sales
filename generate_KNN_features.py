@@ -1,5 +1,6 @@
 #%% train
 import pandas as pd
+df_Train = pd.read_hdf('All_train.hdf', key='train')
 
 import KNN
 KNN_feats = KNN.train(df_Train.drop(columns=['target']).values, df_Train['target'].clip(lower=0,upper=20).values)
