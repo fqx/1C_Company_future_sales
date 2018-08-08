@@ -29,7 +29,7 @@ class NearestNeighborsFeats(BaseEstimator, ClassifierMixin):
             Set's up the train set and self.NN object
         '''
         # Create a NearestNeighbors (NN) object. We will use it in `predict` function
-        self.NN = NearestNeighbors(n_neighbors=max(self.k_list),
+        self.NN = NearestNeighbors(n_neighbors=self.n_neighbors,
                                    metric=self.metric,
                                    n_jobs=1,
                                    algorithm='brute' if self.metric == 'cosine' else 'auto')
@@ -117,7 +117,7 @@ class NearestNeighborsFeats(BaseEstimator, ClassifierMixin):
         '''
         for k in self.k_list:
             # YOUR CODE GOES HERE
-            feats = np.bincount(neighs_y[:k], minlength=self.n_classes)
+            feats = np.bincount(neighs_y[:k].astype(np.int64), minlength=self.n_classes)
             feats = feats / k
 
             assert len(feats) == self.n_classes
@@ -213,8 +213,8 @@ class NearestNeighborsFeats(BaseEstimator, ClassifierMixin):
                You need to add `self.eps` to denominator.
         '''
         for k in self.k_list:
-            a4 = np.bincount(neighs_y[:k], weights=neighs_dist[:k], minlength=self.n_classes)
-            a5 = np.bincount(neighs_y[:k], minlength=self.n_classes) + self.eps
+            a4 = np.bincount(neighs_y[:k].astype(np.int64), weights=neighs_dist[:k], minlength=self.n_classes)
+            a5 = np.bincount(neighs_y[:k].astype(np.int64), minlength=self.n_classes) + self.eps
             feats = a4 / a5
             feats[np.where(feats == 0)] = 999
 
@@ -226,7 +226,7 @@ class NearestNeighborsFeats(BaseEstimator, ClassifierMixin):
         # merge
         knn_feats = np.hstack(return_list)
 
-        assert knn_feats.shape == (239,) or knn_feats.shape == (239, 1)
+        # assert knn_feats.shape == (239,) or knn_feats.shape == (239, 1)
         return knn_feats
 
 
