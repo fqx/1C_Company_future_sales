@@ -32,6 +32,7 @@ class NearestNeighbors(NN):
         :param x: x
         :return: (neighs_dists, indices of neighs)
         '''
+        tf.reset_default_graph()
         train = tf.placeholder('float', [None, self.size])
         test = tf.placeholder('float', [1, self.size])
 
@@ -41,7 +42,6 @@ class NearestNeighbors(NN):
             distance = tf.negative(tf.norm(train - test, ord=2, axis=1))
         pred = tf.nn.top_k(distance, self.n_neighbors)
 
-        tf.reset_default_graph()
         init = tf.global_variables_initializer()
         with tf.Session() as sess:
             sess.run(init)
