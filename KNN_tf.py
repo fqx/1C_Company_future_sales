@@ -91,7 +91,7 @@ class NearestNeighborsFeats(BaseEstimator, ClassifierMixin):
         if self.n_jobs == 1:
             test_feats = []
             for i in range(X.shape[0]):
-                if i % 1000 == 0:
+                if i % 100 == 0:
                     print('getting features for {}/{}'.format(i, X.shape[0]))
                 test_feats.append(self.get_features_for_one(X[i:i + 1]))
         else:
