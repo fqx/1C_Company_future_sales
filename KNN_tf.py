@@ -41,6 +41,7 @@ class NearestNeighbors(NN):
             distance = tf.negative(tf.norm(train - test, ord=2, axis=1))
         pred = tf.nn.top_k(distance, self.n_neighbors)
 
+        tf.reset_default_graph()
         init = tf.global_variables_initializer()
         with tf.Session() as sess:
             sess.run(init)
@@ -74,8 +75,7 @@ class NearestNeighborsFeats(BaseEstimator, ClassifierMixin):
         # Create a NearestNeighbors (NN) object. We will use it in `predict` function
         self.NN = NearestNeighbors(n_neighbors=self.n_neighbors,
                                    metric=self.metric,
-                                   n_jobs=1,
-                                   algorithm='brute' if self.metric == 'cosine' else 'auto')
+                                   n_jobs=1)
         self.NN.fit(X)
 
         # Store labels
