@@ -33,6 +33,7 @@ class NearestNeighbors(NN):
         :return: (neighs_dists, indices of neighs)
         '''
         tf.reset_default_graph()
+        #TODO cosine distance
         train = tf.placeholder('float', [None, self.size])
         test = tf.placeholder('float', [1, self.size])
 
@@ -90,10 +91,10 @@ class NearestNeighborsFeats(BaseEstimator, ClassifierMixin):
         '''
         if self.n_jobs == 1:
             test_feats = []
-            for i in range(X.shape[0]):
-                if i % 100 == 0:
-                    print('getting features for {}/{}'.format(i, X.shape[0]))
-                test_feats.append(self.get_features_for_one(X[i:i + 1]))
+            n = X.shape[0]
+            for i in range(n):
+
+                test_feats.append(self.get_features_for_one(X[i:i + 1], i, n))
         else:
             '''
                  *Make it parallel*
@@ -118,16 +119,28 @@ class NearestNeighborsFeats(BaseEstimator, ClassifierMixin):
             # test_feats =  # YOUR CODE GOES HERE
             # YOUR CODE GOES HERE
             p = Pool(self.n_jobs)
-            test_feats = p.map(self.get_features_for_one, (X[i] for i in range(X.shape[0])))
+            def x_gen(n):
+                i = 0
+                while i < n:
+                    # if i % 1000 == 0:
+                        # print('getting features for {}/{}'.format(i, n))
+                    yield (X[i], i, n)
+                    i += 1
+            x = x_gen(X.shape[0])
+            test_feats = p.starmap(self.get_features_for_one, x)
 
             # assert False, 'You need to implement it for n_jobs > 1'
 
         return np.vstack(test_feats)
 
-    def get_features_for_one(self, x):
+    def get_features_for_one(self, x, i, n):
         '''
             Computes KNN features for a single object `x`
         '''
+
+        if i % 1000 == 0:
+            print('getting features for {}/{}'.format(i, n))
+
         x = x.reshape(1,-1)
 
         NN_output = self.NN.kneighbors(x)
