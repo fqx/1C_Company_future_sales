@@ -20,7 +20,10 @@ class NearestNeighbors(NN):
                           **kwargs)
 
     def fit(self, X):
-        self._fit = X
+        if self.metric == 'cosine':
+            self._fit = np.linalg.norm(X, ord=2, axis=1)
+        else:
+            self._fit = X
         self.size = X.shape[1]
 
     def kneighbors(self, x):
@@ -32,10 +35,8 @@ class NearestNeighbors(NN):
         train = tf.placeholder('float', [None, self.size])
         test = tf.placeholder('float', [1, self.size])
 
-        if self.metric == 'minkowski':
-            distance = tf.negative(tf.norm(train - test, ord=2, axis=1))
-        elif self.metric == 'cosine':
-            distance = tf.negative(tf.reduce_sum(tf.multiply(tf.nn.l2_normalize(train, axis=1), tf.nn.l2_normalize(test, axis=1)), axis=1))
+        if self.metric == 'cosine':
+            distance = tf.negative(tf.reduce_sum(tf.multiply(train, tf.nn.l2_normalize(test, axis=1)), axis=1))
         else:
             distance = tf.negative(tf.norm(train - test, ord=2, axis=1))
         pred = tf.nn.top_k(distance, self.n_neighbors)
@@ -90,6 +91,8 @@ class NearestNeighborsFeats(BaseEstimator, ClassifierMixin):
         if self.n_jobs == 1:
             test_feats = []
             for i in range(X.shape[0]):
+                if i % 1000 == 0:
+                    print('getting features for {}/{}'.format(i, X.shape[0]))
                 test_feats.append(self.get_features_for_one(X[i:i + 1]))
         else:
             '''
