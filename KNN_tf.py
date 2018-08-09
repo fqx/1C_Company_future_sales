@@ -1,6 +1,7 @@
 # KNN features
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.neighbors import NearestNeighbors as NN
+from sklearn.preprocessing import normalize
 from multiprocessing import Pool
 import tensorflow as tf
 import os
@@ -21,7 +22,7 @@ class NearestNeighbors(NN):
 
     def fit(self, X):
         if self.metric == 'cosine':
-            self._fit = np.linalg.norm(X, ord=2, axis=1)
+            self._fit = normalize(X)
         else:
             self._fit = X
         self.size = X.shape[1]
@@ -33,12 +34,11 @@ class NearestNeighbors(NN):
         :return: (neighs_dists, indices of neighs)
         '''
         tf.reset_default_graph()
-        #TODO cosine distance
         train = tf.placeholder('float', [None, self.size])
         test = tf.placeholder('float', [1, self.size])
 
         if self.metric == 'cosine':
-            distance = tf.negative(tf.reduce_sum(tf.multiply(train, tf.nn.l2_normalize(test, axis=1)), axis=1))
+            distance = tf.negative(1 - tf.reduce_sum(tf.multiply(train, tf.norm(test, ord=2, axis=1)), axis=1))
         else:
             distance = tf.negative(tf.norm(train - test, ord=2, axis=1))
         pred = tf.nn.top_k(distance, self.n_neighbors)
@@ -115,21 +115,15 @@ class NearestNeighborsFeats(BaseEstimator, ClassifierMixin):
 
             '''
 
-            # YOUR CODE GOES HERE
-            # test_feats =  # YOUR CODE GOES HERE
-            # YOUR CODE GOES HERE
+
             p = Pool(self.n_jobs)
             def x_gen(n):
                 i = 0
                 while i < n:
-                    # if i % 1000 == 0:
-                        # print('getting features for {}/{}'.format(i, n))
                     yield (X[i], i, n)
                     i += 1
             x = x_gen(X.shape[0])
             test_feats = p.starmap(self.get_features_for_one, x)
-
-            # assert False, 'You need to implement it for n_jobs > 1'
 
         return np.vstack(test_feats)
 
@@ -157,10 +151,6 @@ class NearestNeighborsFeats(BaseEstimator, ClassifierMixin):
         # Stores labels of corresponding neighbors
         neighs_y = self.y_train[neighs]
 
-        ## ========================================== ##
-        ##              YOUR CODE BELOW
-        ## ========================================== ##
-
         # We will accumulate the computed features here
         # Eventually it will be a list of lists or np.arrays
         # and we will use np.hstack to concatenate those
@@ -174,7 +164,7 @@ class NearestNeighborsFeats(BaseEstimator, ClassifierMixin):
                Note that the values should sum up to one
         '''
         for k in self.k_list:
-            # YOUR CODE GOES HERE
+
             feats = np.bincount(neighs_y[:k].astype(np.int64), minlength=self.n_classes)
             feats = feats / k
 
@@ -188,7 +178,7 @@ class NearestNeighborsFeats(BaseEstimator, ClassifierMixin):
                What can help you: `np.where`
         '''
 
-        # YOUR CODE GOES HERE
+
         a0 = np.argmax(np.where(neighs_y == neighs_y[0], 0, 1))  # YOUR CODE GOES HERE
         if a0 == 0:
             feats = [len(neighs_y)]
@@ -213,7 +203,7 @@ class NearestNeighborsFeats(BaseEstimator, ClassifierMixin):
                 feats.append(neighs_dist[list(neighs_y).index(c)])
             else:
                 feats.append(999)
-            # YOUR CODE GOES HERE
+
 
         assert len(feats) == self.n_classes
         return_list += [feats]
@@ -236,7 +226,7 @@ class NearestNeighborsFeats(BaseEstimator, ClassifierMixin):
                 feats.append(999)
             else:
                 feats.append(neighs_dist[np.argmax(a2)] / a3)
-            # YOUR CODE GOES HERE
+
 
         assert len(feats) == self.n_classes
         return_list += [feats]
@@ -276,7 +266,7 @@ class NearestNeighborsFeats(BaseEstimator, ClassifierMixin):
             feats = a4 / a5
             feats[np.where(feats == 0)] = 999
 
-            # YOUR CODE GOES IN HERE
+
 
             assert len(feats) == self.n_classes
             return_list += [feats]
@@ -284,7 +274,7 @@ class NearestNeighborsFeats(BaseEstimator, ClassifierMixin):
         # merge
         knn_feats = np.hstack(return_list)
 
-        # assert knn_feats.shape == (239,) or knn_feats.shape == (239, 1)
+
         return knn_feats
 
 
@@ -294,7 +284,7 @@ from sklearn.model_selection import StratifiedKFold
 k_list = [3, 8, 32]
 
 def train(X, Y, n_jobs=1):
-    '''return (n, 239) numpy array'''
+    '''return (n, 46) numpy array'''
     feats =[]
 
     for metric in ['minkowski', 'cosine']:
@@ -315,7 +305,7 @@ def train(X, Y, n_jobs=1):
     return feats
 
 def test(X, Y, X_test, n_jobs=1):
-    '''return (n, 239) numpy array'''
+    '''return (n, 46) numpy array'''
     feats = []
 
     for metric in ['minkowski', 'cosine']:
