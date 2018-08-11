@@ -20,3 +20,6 @@ pred = pd.read_csv('./data-readonly/sample_submission.csv.gz')
 pred['item_cnt_month'] = pred_rf
 pred['item_cnt_month'] = pred['item_cnt_month'].clip(lower=0, upper=20)
 pred.to_csv('./Prediction/'+training_name+'.csv', index=False)
+
+from sklearn.externals import joblib
+joblib.dump(model, './Model/RandomForest.pkl', compress=3)
