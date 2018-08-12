@@ -11,8 +11,7 @@ model = RandomForestRegressor(n_estimators=100, n_jobs=-1)
 model.fit(X_train, y_train)
 pred_rf = model.predict(X_test)
 
-features = zip(X_train.columns, model.feature_importances_)
-plt.barh(features)
+plt.barh(X_train.columns, model.feature_importances_)
 plt.show()
 
 #%% make pred files
