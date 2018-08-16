@@ -1,11 +1,12 @@
 #%% a simple training script for lightGBM
 import pandas as pd
 import lightgbm as lgb
+import load_datasets
 
 training_name = 'lightgbm'
-X_train = pd.read_hdf('./HDF/Train_with_features.hdf', key='train_x')
-y_train = pd.read_hdf('./HDF/Train_with_features.hdf', key='train_y')
-X_test = pd.read_hdf('./HDF/Train_with_features.hdf', key='test_x')
+X_train, y_train = load_datasets.train(max_date_block_num=33)
+# X_val, y_val = load_datasets.val(min_date_block_num=33)
+X_test = load_datasets.test()
 
 lgb_params = {
                'feature_fraction': 0.7907245563968146,
@@ -25,9 +26,12 @@ lgb_params = {
                'verbose':0
               }
 
-model = lgb.train(lgb_params, lgb.Dataset(X_train, label=y_train), 100)
+model = lgb.train(lgb_params, lgb.Dataset(X_train, label=y_train), num_boost_round=443,)
+                 # valid_sets=lgb.Dataset(X_val, label=y_val), early_stopping_rounds=100, verbose_eval=False)
 pred_lgb = model.predict(X_test)
 
+del X_train,  X_test, y_train
+# del X_val, y_val
 #%% make pred files
 pred = pd.read_csv('./data-readonly/sample_submission.csv.gz')
 pred['item_cnt_month'] = pred_lgb
