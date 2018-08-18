@@ -26,7 +26,7 @@ lgb_params = {
                'verbose':0
               }
 
-model = lgb.train(lgb_params, lgb.Dataset(X_train, label=y_train), num_boost_round=443,)
+model = lgb.train(lgb_params, lgb.Dataset(X_train, label=y_train), num_boost_round=100,)
                  # valid_sets=lgb.Dataset(X_val, label=y_val), early_stopping_rounds=100, verbose_eval=False)
 pred_lgb = model.predict(X_test)
 

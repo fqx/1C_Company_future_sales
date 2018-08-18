@@ -2,7 +2,7 @@ import pandas as pd
 HDF = './HDF/Train_with_features.hdf'
 
 
-def train(max_date_block_num=33, min_date_block_num=0):
+def train(max_date_block_num=33, min_date_block_num=12):
 
     X_train = pd.read_hdf(HDF, key='train_x')
     y_train = pd.read_hdf(HDF, key='train_y')

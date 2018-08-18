@@ -49,5 +49,5 @@ merge_list = [
 ]
 for df, id in merge_list:
     df_Test = df_Test.merge(df, on=id)
-drop_col = ['item_category_name', 'item_name', 'shop_name']
-df_Test.drop(columns=drop_col).to_hdf('./HDF/Train_with_features.hdf', key='test_x')
+# drop_col = ['item_category_name', 'shop_name']
+df_Test.to_hdf('./HDF/Train_with_features.hdf', key='test_x')
