@@ -50,4 +50,31 @@ merge_list = [
 for df, id in merge_list:
     df_Test = df_Test.merge(df, on=id)
 # drop_col = ['item_category_name', 'shop_name']
+
+# Scale feature columns
+from sklearn.preprocessing import StandardScaler
+df_Train = pd.read_hdf('./HDF/Train_with_features.hdf', key='train_x')
+sc = StandardScaler()
+to_drop_cols = ['date_block_num']
+mean_cols = ['shop_id_target_enc', 'item_id_target_enc', 'date_block_num_target_enc']
+feature_columns = list(set(df_Train.columns).difference(to_drop_cols + mean_cols))
+
+df_Train[feature_columns] = sc.fit_transform(df_Train[feature_columns])
+df_Test[feature_columns] = sc.transform(df_Test[feature_columns])
+
+def downcast_dtypes(df):
+    float_cols = [c for c in df if df[c].dtype == "float64"]
+    int_cols =   [c for c in df if df[c].dtype in ["int64", "int32"]]
+
+    df[float_cols] = df[float_cols].astype(np.float32)
+    df[int_cols]   = df[int_cols].astype(np.int16)
+
+    return df
+
+df_Train = downcast_dtypes(df_Train)
+df_Test = downcast_dtypes(df_Test)
+
+
+df_Train.to_hdf('./HDF/Train_with_features.hdf', key='train_x', mode='w')
 df_Test.to_hdf('./HDF/Train_with_features.hdf', key='test_x')
+
